@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cadence – sales scheduling CRM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef2f6;--surface:#fff;--ink:#12303d;--muted:#5d7380;--line:#d5dee6;--accent:#0f766e;--accent-ink:#fff;--today:#fff4d6;--danger:#b4372b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10202a;--surface:#182c38;--ink:#e6eef3;--muted:#93a8b5;--line:#2a4352;--accent:#2dd4bf;--accent-ink:#06302c;--today:#3a3318;--danger:#f08a7e}}
+:root[data-theme="dark"]{--bg:#10202a;--surface:#182c38;--ink:#e6eef3;--muted:#93a8b5;--line:#2a4352;--accent:#2dd4bf;--accent-ink:#06302c;--today:#3a3318;--danger:#f08a7e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+body.ro .w{display:none}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--surface)}
+h1{font-size:1.5rem;font-weight:800;margin:0;letter-spacing:-.02em}
+nav{display:flex;gap:4px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 13px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.sm{padding:0 7px;font-size:.8rem}
+main{padding:18px 20px;max-width:1280px;margin:0 auto}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.bar .sp{flex:1}
+.note{background:var(--today);border:1px solid #d9a400;border-radius:8px;padding:8px 12px;margin:0 0 12px}
+.note.err{border-color:var(--danger);color:var(--danger);background:var(--surface)}
+.week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;min-height:220px;display:flex;flex-direction:column;gap:8px}
+.day.today,.cell.today{background:var(--today);border-color:#d9a400}
+.day h3{margin:0;font-size:.95rem;display:flex;justify-content:space-between}
+.day h3 span{color:var(--muted);font-weight:400}
+.mtg{border-left:4px solid var(--muted);background:var(--bg);border-radius:6px;padding:6px 8px;font-size:.88rem}
+.mtg b{display:block}
+.mtg small{color:var(--muted)}
+.mtg.done b{text-decoration:line-through;color:var(--muted)}
+.acts{display:flex;gap:6px;margin-top:4px}
+.acts button{padding:1px 8px;font-size:.78rem}
+.empty{color:var(--muted);font-size:.85rem}
+.add{margin-top:auto;font-size:.82rem;background:none;border-style:dashed}
+.mon{display:grid;grid-template-columns:repeat(7,minmax(105px,1fr));gap:6px;overflow-x:auto}
+.dow{color:var(--muted);font-weight:600;font-size:.85rem;padding:0 4px}
+.cell{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px;min-height:104px;display:flex;flex-direction:column;gap:3px}
+.cell.out{opacity:.5}
+.cell .hd{display:flex;justify-content:space-between;align-items:center}
+.cell .dn{border:none;background:none;padding:0 4px;font-weight:600}
+.chip{border-left:3px solid var(--muted);background:var(--bg);border-radius:4px;padding:1px 5px;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.done{text-decoration:line-through;color:var(--muted)}
+.more{font-size:.76rem;color:var(--muted);padding-left:4px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line)}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:.92rem}
+th{color:var(--muted);font-weight:600}
+td .acts{margin:0}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(420px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+label{display:block;font-size:.85rem;color:var(--muted);margin-top:10px}
+label.inl{display:flex;align-items:center;gap:6px;margin:0}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-top:3px}
+label.inl input,label.inl select{width:auto;margin:0}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.foot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;color:var(--muted);margin-bottom:10px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.owners{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:8px}
+.owners li{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.owners li .sp{flex:1}
+.pri{display:inline-block;padding:1px 9px;border-radius:99px;font-size:.8rem;font-weight:600;border:1px solid var(--line)}
+.pri.high{background:#fde2de;color:#8a1f13;border-color:#e9a79f}
+.pri.medium{background:#fff1cc;color:#7a5600;border-color:#e0bf6b}
+.pri.low{background:#dff3e8;color:#14532d;border-color:#9fd1b3}
+td.notes{min-width:220px;max-width:340px}
+.nt{cursor:text;white-space:pre-wrap;border-radius:6px;padding:3px 6px;border:1px dashed transparent}
+.nt:hover,.nt:focus-visible{background:var(--bg);border-color:var(--line)}
+td.notes textarea{margin:0;border-color:var(--accent);min-height:70px}
+td a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Cadence</h1>
+  <nav aria-label="Views">
+    <button id="tabSched">Schedule</button>
+    <button id="tabCon">Contacts</button>
+    <button id="tabOwn">Owners</button>
+  </nav>
+</header>
+<main id="app"></main>
+
+<dialog id="mDlg">
+  <h2 style="margin:0">New meeting</h2>
+  <label>Title<input id="mTitle" placeholder="Demo call"></label>
+  <label>Contact<select id="mContact"></select></label>
+  <div class="row">
+    <label>Date<input id="mDate" type="date"></label>
+    <label>Time<input id="mTime" type="time" value="10:00"></label>
+  </div>
+  <div class="row">
+    <label>Owner<select id="mRep"></select></label>
+    <label>Type<select id="mType"><option>Call</option><option>Demo</option><option>Follow-up</option><option>On-site</option></select></label>
+  </div>
+  <p id="mErr" class="empty" role="alert"></p>
+  <div class="foot"><button id="mCancel">Cancel</button><button id="mSave" class="primary">Save meeting</button></div>
+</dialog>
+
+<dialog id="cDlg">
+  <h2 id="cTitle" style="margin:0">New contact</h2>
+  <label>Name<input id="cName"></label>
+  <label>Company<input id="cCo"></label>
+  <div class="row">
+    <label>Stage<select id="cStage"></select></label>
+    <label>Owner<select id="cRep"></select></label>
+  </div>
+  <div class="row"><label>Phone<input id="cPhone" type="tel"></label><label>Email<input id="cEmail" type="email"></label></div>
+  <div class="row"><label>Priority<select id="cPri"></select></label><label>Expected close<input id="cClose" type="date"></label></div>
+  <label>Notes<textarea id="cNotes" rows="3" maxlength="1000"></textarea></label>
+  <div class="foot"><button id="cCancel">Cancel</button><button id="cSave" class="primary">Save contact</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const parse=s=>{const p=s.split("-").map(Number);return new Date(p[0],p[1]-1,p[2])};
+function monday(d){const x=new Date(d);x.setDate(x.getDate()-(x.getDay()+6)%7);x.setHours(0,0,0,0);return x}
+const STAGES=["Lead","Qualified","Proposal","Won"];
+
+let data={owners:[],contacts:[],meetings:[]},loaded={},db=null,local=false,canWrite=true,msg="",nid=1;
+let noteEd=null,view="sched",mode="week",cSort="name",cAsc=true,pend=null,repFilter="All",editId=null;
+let anchor=(()=>{const d=new Date();d.setHours(0,0,0,0);if(d.getDay()==6)d.setDate(d.getDate()+2);else if(d.getDay()==0)d.setDate(d.getDate()+1);return d})();
+
+const owner=id=>data.owners.find(o=>o.id==id);
+const oname=id=>{const o=owner(id);return o?o.name:"Unassigned"};
+const ocol=id=>{const o=owner(id);return o?"hsl("+o.hue+" 60% 45%)":"var(--muted)"};
+const contact=id=>data.contacts.find(c=>c.id==id);
+const cname=id=>{const c=contact(id);return c?c.name+" · "+c.company:"No contact"};
+const byTime=(a,b)=>a.time.localeCompare(b.time);
+const ownerOpts=sel=>data.owners.map(o=>'<option value="'+esc(o.id)+'"'+(o.id==sel?" selected":"")+">"+esc(o.name)+"</option>").join("")+'<option value=""'+(!owner(sel)?" selected":"")+">Unassigned</option>";
+
+/* ---------- data layer: shared database, or in-memory preview if unavailable ---------- */
+function fail(e){msg="Couldn’t save that change"+(e&&e.code=="invalid_argument"?". You may have view-only access.":". Try again.");render()}
+async function add(c,o){if(local){o.id="l"+nid++;data[c].push(o);render();return}try{msg="";await db.collection(c).add(o)}catch(e){fail(e)}}
+async function upd(c,id,o){if(local){Object.assign(data[c].find(x=>x.id==id),o);render();return}try{msg="";await db.doc(c+"/"+id).update(o)}catch(e){fail(e)}}
+async function del(c,id){if(local){data[c]=data[c].filter(x=>x.id!=id);render();return}try{msg="";await db.doc(c+"/"+id).delete()}catch(e){fail(e)}}
+
+async function init(){
+  try{if(window.claude&&claude.use)db=await claude.use("db")}catch(e){db=null}
+  try{if(window.claude&&claude.use){const u=await claude.use("user");if(u&&u.can){const w=await u.can("data.write");if(w===false)canWrite=false}}}catch(e){}
+  if(!db){local=true;render();return}
+  ["owners","contacts","meetings"].forEach(c=>{
+    db.collection(c).onSnapshot(s=>{
+      data[c]=s.docs.map(d=>Object.assign({id:d.id},d.data()));
+      loaded[c]=true;render();
+    },e=>{msg="Lost connection to the shared data. Reload the page.";render()});
+  });
+}
+
+/* ---------- views ---------- */
+function nextOf(c){const t=iso(new Date());return data.meetings.filter(m=>m.contactId==c.id&&!m.done&&m.date>=t).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time))[0]}
+function prioHtml(p){return p?'<span class="pri '+esc(p.toLowerCase())+'">'+esc(p)+"</span>":'<span class="empty">Not set</span>'}
+function contactRows(){
+  const v=c=>{if(cSort=="next"){const n=nextOf(c);return n?n.date+n.time:"~"}if(cSort=="rep")return oname(c.rep).toLowerCase();if(cSort=="priority")return String({High:1,Medium:2,Low:3}[c.priority]||9);if(cSort=="close")return c.close||"~";return String(c[cSort]||"").toLowerCase()};
+  return data.contacts.slice().sort((a,b)=>(v(a)<v(b)?-1:v(a)>v(b)?1:0)*(cAsc?1:-1));
+}
+
+function rSched(){
+  const ws=monday(anchor),td=iso(new Date());
+  const vis=m=>repFilter=="All"||m.rep==repFilter;
+  const short={month:"short",day:"numeric"};
+  let title;
+  if(mode=="week"){const e=new Date(ws);e.setDate(e.getDate()+6);title=ws.toLocaleDateString(undefined,short)+" to "+e.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}
+  else title=anchor.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  let h='<div class="bar"><button id="mWeek" class="'+(mode=="week"?"on":"")+'">Week</button><button id="mMonth" class="'+(mode=="month"?"on":"")+'">Month</button><button id="prev" aria-label="Previous">Previous</button><button id="now">Today</button><button id="next" aria-label="Next">Next</button><strong>'+esc(title)+'</strong><span class="sp"></span><label class="inl">Go to <input id="jump" type="date" value="'+iso(anchor)+'"></label><label class="inl">Owner <select id="rf"><option value="All">All</option>'+data.owners.map(o=>'<option value="'+esc(o.id)+'"'+(o.id==repFilter?" selected":"")+">"+esc(o.name)+"</option>").join("")+'</select></label><button class="primary w" id="newM">New meeting</button></div>';
+  h+='<div class="legend">'+data.owners.map(o=>'<span><span class="dot" style="background:'+ocol(o.id)+'"></span>'+esc(o.name)+"</span>").join("")+"</div>";
+  if(mode=="week"){
+    h+='<div class="week">';
+    ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach((n,i)=>{
+      const d=new Date(ws);d.setDate(d.getDate()+i);const di=iso(d);
+      const list=data.meetings.filter(m=>m.date==di&&vis(m)).sort(byTime);
+      h+='<section class="day'+(di==td?" today":"")+'"><h3>'+n+" <span>"+d.toLocaleDateString(undefined,short)+"</span></h3>";
+      if(!list.length)h+='<div class="empty">Nothing booked</div>';
+      list.forEach(m=>{h+='<div class="mtg'+(m.done?" done":"")+'" style="border-left-color:'+ocol(m.rep)+'"><b>'+esc(m.time)+" "+esc(m.title)+"</b><small>"+esc(cname(m.contactId))+"<br>"+esc(m.type)+" with "+esc(oname(m.rep))+'</small><div class="acts w"><button data-done="'+esc(m.id)+'">'+(m.done?"Reopen":"Mark done")+'</button><button data-del="'+esc(m.id)+'">Delete</button></div></div>'});
+      h+='<button class="add w" data-add="'+di+'">Add meeting</button></section>';
+    });
+    h+="</div>";
+  }else{
+    const first=new Date(anchor.getFullYear(),anchor.getMonth(),1);
+    const dim=new Date(anchor.getFullYear(),anchor.getMonth()+1,0).getDate();
+    const rows=Math.ceil(((first.getDay()+6)%7+dim)/7),start=monday(first);
+    h+='<div class="wrap"><div class="mon">'+["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(n=>'<div class="dow">'+n+"</div>").join("");
+    for(let k=0;k<rows*7;k++){
+      const d=new Date(start);d.setDate(d.getDate()+k);const di=iso(d);
+      const list=data.meetings.filter(m=>m.date==di&&vis(m)).sort(byTime);
+      h+='<div class="cell'+(d.getMonth()!=first.getMonth()?" out":"")+(di==td?" today":"")+'"><div class="hd"><button class="dn" data-go="'+di+'" aria-label="Open week of '+di+'">'+d.getDate()+'</button><button class="sm w" data-add="'+di+'" aria-label="Add meeting on '+di+'">+</button></div>';
+      list.slice(0,3).forEach(m=>{h+='<div class="chip'+(m.done?" done":"")+'" style="border-left-color:'+ocol(m.rep)+'" title="'+esc(cname(m.contactId))+'">'+esc(m.time)+" "+esc(m.title)+"</div>"});
+      if(list.length>3)h+='<div class="more">+'+(list.length-3)+" more</div>";
+      h+="</div>";
+    }
+    h+="</div></div>";
+  }
+  return h;
+}
+
+function rCon(){
+  let h='<div class="bar"><h2 style="margin:0">Contacts</h2><span class="sp"></span><label class="inl">Sort by <select id="cs">'+[["name","Name"],["company","Company"],["stage","Stage"],["priority","Priority"],["close","Expected close"],["rep","Owner"],["next","Next meeting"]].map(o=>'<option value="'+o[0]+'"'+(o[0]==cSort?" selected":"")+">"+o[1]+"</option>").join("")+'</select></label><button id="cd">'+(cAsc?"Ascending":"Descending")+'</button><button class="primary w" id="newC">New contact</button></div>';
+  if(!data.contacts.length)return h+'<p class="empty">No contacts yet. Add one to start scheduling.</p>';
+  h+='<div class="wrap"><table><thead><tr><th>Name</th><th>Company</th><th>Phone</th><th>Email</th><th>Stage</th><th>Priority</th><th>Owner</th><th>Expected close</th><th>Next meeting</th><th>Notes</th><th></th></tr></thead><tbody>';
+  contactRows().forEach(c=>{
+    const nx=nextOf(c);
+    h+="<tr><td>"+esc(c.name)+"</td><td>"+esc(c.company)+"</td><td>"+(c.phone?'<a href="tel:'+esc(String(c.phone).replace(/[^\d+]/g,""))+'">'+esc(c.phone)+"</a>":'<span class="empty">Not set</span>')+"</td><td>"+(c.email?'<a href="mailto:'+esc(c.email)+'">'+esc(c.email)+"</a>":'<span class="empty">Not set</span>')+"</td><td>"+esc(c.stage)+"</td><td>"+prioHtml(c.priority)+"</td><td>"+esc(oname(c.rep))+"</td><td>"+(c.close?esc(c.close):'<span class="empty">Not set</span>')+"</td><td>"+(nx?esc(nx.date+" "+nx.time):'<span class="empty">None scheduled</span>')+'</td><td class="notes"><div class="nt" tabindex="0" role="button" title="Click to edit notes" data-note="'+esc(c.id)+'">'+(c.notes?esc(c.notes):'<span class="empty">Add a note</span>')+'</div></td><td><div class="acts w"><button data-editc="'+esc(c.id)+'">Edit</button><button data-delc="'+esc(c.id)+'">'+(pend=="c"+c.id?"Confirm delete?":"Delete")+"</button></div></td></tr>";
+  });
+  return h+"</tbody></table></div>";
+}
+
+function rOwn(){
+  let h='<div class="bar"><h2 style="margin:0">Owners</h2></div>';
+  if(!data.owners.length)h+='<p class="empty">No owners yet. Add the first team member below.</p>';
+  h+='<ul class="owners">'+data.owners.map(o=>{
+    const nc=data.contacts.filter(c=>c.rep==o.id).length,nm=data.meetings.filter(m=>m.rep==o.id).length;
+    return '<li><span class="dot" style="background:'+ocol(o.id)+'"></span><strong>'+esc(o.name)+'</strong><span class="empty">'+nc+" contacts, "+nm+' meetings</span><span class="sp"></span><button class="w" data-delo="'+esc(o.id)+'">'+(pend=="o"+o.id?"Confirm delete?":"Delete")+"</button></li>";
+  }).join("")+"</ul>";
+  h+='<div class="bar w"><label class="inl">New owner <input id="oName" placeholder="Sam"></label><button class="primary" id="oAdd">Add owner</button><span id="oErr" class="empty" role="alert"></span></div>';
+  h+='<p class="empty">Deleting an owner keeps their contacts and meetings. They show as Unassigned until you pick a new owner.</p>';
+  return h;
+}
+
+function render(){
+  if(noteEd)return;
+  $("#tabSched").className=view=="sched"?"on":"";
+  $("#tabCon").className=view=="con"?"on":"";
+  $("#tabOwn").className=view=="own"?"on":"";
+  document.body.classList.toggle("ro",!canWrite);
+  let h="";
+  if(local)h+='<p class="note">Preview mode: the shared database isn’t available here, so changes aren’t saved.</p>';
+  if(!canWrite)h+='<p class="note">You have view-only access. You can look around but not change anything.</p>';
+  if(msg)h+='<p class="note err" role="alert">'+esc(msg)+"</p>";
+  const app=$("#app");
+  if(!local&&!(loaded.owners&&loaded.contacts&&loaded.meetings)){app.innerHTML=h+'<p class="empty">Loading shared data…</p>';return}
+  app.innerHTML=h+(view=="sched"?rSched():view=="con"?rCon():rOwn());
+  bind();
+}
+
+/* ---------- events ---------- */
+const on=(s,fn,ev)=>{const e=$(s);if(e)e[ev||"onclick"]=fn};
+const all=(s,fn)=>document.querySelectorAll(s).forEach(fn);
+function bind(){
+  on("#mWeek",()=>{mode="week";render()});
+  on("#mMonth",()=>{mode="month";render()});
+  on("#prev",()=>{anchor=mode=="week"?new Date(anchor.getFullYear(),anchor.getMonth(),anchor.getDate()-7):new Date(anchor.getFullYear(),anchor.getMonth()-1,1);render()});
+  on("#next",()=>{anchor=mode=="week"?new Date(anchor.getFullYear(),anchor.getMonth(),anchor.getDate()+7):new Date(anchor.getFullYear(),anchor.getMonth()+1,1);render()});
+  on("#now",()=>{anchor=new Date();anchor.setHours(0,0,0,0);render()});
+  on("#jump",e=>{if(e.target.value){anchor=parse(e.target.value);render()}},"onchange");
+  on("#rf",e=>{repFilter=e.target.value;render()},"onchange");
+  on("#newM",()=>openM(iso(new Date())));
+  all("[data-add]",b=>b.onclick=()=>openM(b.dataset.add));
+  all("[data-go]",b=>b.onclick=()=>{anchor=parse(b.dataset.go);mode="week";render()});
+  all("[data-done]",b=>b.onclick=()=>{const m=data.meetings.find(x=>x.id==b.dataset.done);if(m)upd("meetings",m.id,{done:!m.done})});
+  all("[data-del]",b=>b.onclick=()=>del("meetings",b.dataset.del));
+  on("#cs",e=>{cSort=e.target.value;pend=null;render()},"onchange");
+  on("#cd",()=>{cAsc=!cAsc;pend=null;render()});
+  on("#newC",()=>openC(null));
+  all("[data-editc]",b=>b.onclick=()=>openC(b.dataset.editc));
+  all("[data-delc]",b=>b.onclick=async()=>{
+    const id=b.dataset.delc;
+    if(pend!="c"+id){pend="c"+id;render();return}
+    pend=null;
+    for(const m of data.meetings.filter(m=>m.contactId==id))await del("meetings",m.id);
+    await del("contacts",id);
+  });
+  all("[data-delo]",b=>b.onclick=async()=>{
+    const id=b.dataset.delo;
+    if(pend!="o"+id){pend="o"+id;render();return}
+    pend=null;if(repFilter==id)repFilter="All";
+    await del("owners",id);
+  });
+  all("[data-note]",d=>{
+    const open=()=>{
+      const c=contact(d.dataset.note);if(!c||!canWrite)return;
+      noteEd=c.id;
+      const t=document.createElement("textarea");t.value=c.notes||"";t.rows=3;t.maxLength=1000;t.setAttribute("aria-label","Notes for "+c.name);
+      d.replaceWith(t);t.focus();
+      let done=false;
+      const fin=async save=>{
+        if(done)return;done=true;noteEd=null;
+        const v=t.value.trim();
+        if(save&&v!==(c.notes||""))await upd("contacts",c.id,{notes:v});else render();
+      };
+      t.onblur=()=>fin(true);
+      t.onkeydown=e=>{if(e.key=="Escape")fin(false);else if(e.key=="Enter"&&(e.ctrlKey||e.metaKey))fin(true)};
+    };
+    d.onclick=open;
+    d.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();open()}};
+  });
+  on("#oAdd",addOwner);
+  on("#oName",e=>{if(e.key=="Enter")addOwner()},"onkeydown");
+}
+function addOwner(){
+  const n=$("#oName").value.replace(/[<>&"]/g,"").trim();
+  if(!n){$("#oErr").textContent="Enter a name for the new owner.";return}
+  if(data.owners.some(o=>o.name.toLowerCase()==n.toLowerCase())){$("#oErr").textContent=n+" is already an owner.";return}
+  add("owners",{name:n,hue:Math.floor(Math.random()*360)});
+}
+function openM(date){
+  if(!data.contacts.length){msg="Add a contact first, then you can schedule a meeting.";render();return}
+  $("#mContact").innerHTML=data.contacts.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+" · "+esc(c.company)+"</option>").join("");
+  $("#mRep").innerHTML=ownerOpts(repFilter!="All"?repFilter:"");
+  $("#mDate").value=date;$("#mTitle").value="";$("#mErr").textContent="";$("#mDlg").showModal();
+}
+function openC(id){
+  editId=id;const c=id?contact(id):null;
+  $("#cTitle").textContent=c?"Edit contact":"New contact";
+  $("#cName").value=c?c.name:"";$("#cCo").value=c?c.company:"";
+  $("#cStage").innerHTML=STAGES.map(s=>"<option"+(c&&c.stage==s?" selected":"")+">"+s+"</option>").join("");
+  $("#cRep").innerHTML=ownerOpts(c?c.rep:"");
+  $("#cPhone").value=c&&c.phone||"";$("#cEmail").value=c&&c.email||"";$("#cClose").value=c&&c.close||"";$("#cNotes").value=c&&c.notes||"";
+  $("#cPri").innerHTML=["","High","Medium","Low"].map(p=>'<option value="'+p+'"'+(c&&c.priority==p?" selected":"")+">"+(p||"Not set")+"</option>").join("");
+  $("#cDlg").showModal();
+}
+$("#mCancel").onclick=()=>$("#mDlg").close();
+$("#cCancel").onclick=()=>$("#cDlg").close();
+$("#mSave").onclick=()=>{
+  const t=$("#mTitle").value.trim();
+  if(!t){$("#mErr").textContent="Give the meeting a title.";$("#mTitle").focus();return}
+  if(!$("#mDate").value){$("#mErr").textContent="Pick a date.";return}
+  add("meetings",{title:t,contactId:$("#mContact").value,rep:$("#mRep").value,date:$("#mDate").value,time:$("#mTime").value||"09:00",type:$("#mType").value,done:false});
+  $("#mDlg").close();
+};
+$("#cSave").onclick=()=>{
+  const n=$("#cName").value.trim();if(!n){$("#cName").focus();return}
+  const o={name:n,company:$("#cCo").value.trim(),stage:$("#cStage").value,rep:$("#cRep").value,phone:$("#cPhone").value.trim(),email:$("#cEmail").value.trim(),priority:$("#cPri").value,close:$("#cClose").value,notes:$("#cNotes").value.trim()};
+  if(editId)upd("contacts",editId,o);else add("contacts",o);
+  $("#cDlg").close();
+};
+$("#tabSched").onclick=()=>{view="sched";pend=null;render()};
+$("#tabCon").onclick=()=>{view="con";pend=null;render()};
+$("#tabOwn").onclick=()=>{view="own";pend=null;render()};
+render();
+init();
+</script>
+</body>
+</html>
